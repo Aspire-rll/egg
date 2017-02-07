@@ -52,6 +52,10 @@ function* deploy() {
   yield publish('docs/public', {
     logger(message) { console.log(message); },
     BRANCH,
+    user: {
+      name: 'Auto Doc Publisher',
+      email: 'docs@egg.com',
+    },
   });
 }
 
