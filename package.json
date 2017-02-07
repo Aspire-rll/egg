@@ -105,7 +105,6 @@
     "doc-server": "./scripts/doc.sh server",
     "doc-build": "./scripts/doc.js build",
     "doc-deploy": "./scripts/doc.js deploy",
-    "doc-travis": "./scripts/doc.js travis-deploy",
     "autod": "autod",
     "puml": "puml . --dest ./docs",
     "commits": "./scripts/commits.sh"

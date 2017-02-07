@@ -7,8 +7,8 @@ const co = require('co');
 const rimraf = require('rimraf');
 const runscript = require('runscript');
 const ghpages = require('gh-pages');
-const path = require('path');
 
+// The branch that pushing document
 const BRANCH = 'test';
 const command = process.argv[2];
 
@@ -36,10 +36,6 @@ co(function* () {
       yield runscript('hexo --cwd docs generate --force');
       yield deploy();
       break;
-    case 'travis-deploy':
-      yield runscript('hexo --cwd docs generate --force');
-      yield deployTravis();
-      break;
     default:
   }
 }).catch(err => {
@@ -49,39 +45,18 @@ co(function* () {
 
 function* deploy() {
   console.log('Pushing to %s', BRANCH);
-  yield publish('docs/public', {
-    logger(message) { console.log(message); },
-    BRANCH,
-    user: {
-      name: 'Auto Doc Publisher',
-      email: 'docs@egg.com',
-    },
-  });
-}
-
-// https://gist.github.com/domenic/ec8b0fc8ab45f39403dd#sign-up-for-travis-and-add-your-project
-function* deployTravis() {
-  console.log('Pushing to %s', BRANCH);
   let repo = yield runscript('git config remote.origin.url', { stdio: 'pipe' });
   repo = repo.stdout.toString().slice(0, -1);
   if (/^http/.test(repo)) {
     repo = repo.replace('https://github.com/', 'git@github.com:');
   }
-  const key = `$encrypted_${process.env.ENCRYPTION_LABEL}_key`;
-  const iv = `$encrypted_${process.env.ENCRYPTION_LABEL}_iv`;
-  const enc = 'scripts/deploy_key.enc';
-  yield runscript(`openssl aes-256-cbc -K ${key} -iv ${iv} -in ${enc} -out deploy_key -d`);
-  yield runscript('chmod 600 deploy_key');
-
-  process.env.GIT_SSH = path.join(__dirname, 'ssh.js');
-  process.env.DEPLOY_KEY = path.join(process.cwd(), 'deploy_key');
   yield publish('docs/public', {
     logger(message) { console.log(message); },
     user: {
-      name: 'Travis CI',
+      name: 'Auto Doc Publisher',
       email: 'docs@egg.com',
     },
-    BRANCH,
+    branch: BRANCH,
     repo,
   });
 }
